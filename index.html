@@ -284,6 +284,16 @@
       font-size: 14px;
       white-space: nowrap;
     }
+
+    .education-image {
+      width: 100%;
+      max-width: 400px;
+      height: 200px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elev) center/cover no-repeat;
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
     
     /* 技能 */
     .skills-grid {
@@ -1079,36 +1089,30 @@
       
       // 特殊相册图片（触发关键词后显示的图片）
       galleryImages: [
-        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/20251111202007625.png',
-        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/20251111202007625.png',
-        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/20251111202007625.png',
+        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/FC1EC146C7BEA4F89403105C39C00E25.png',
+        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/27E161C96CDCC06532030B3A5DAA0ECE.png',
+        'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/E949E705CF280D9591D8036EA08572B6.png',
         // 可以在这里添加更多图片URL
       ],
       
       // 工作经历数据
       experience: [
         {
-          title: '高级软件工程师',
-          company: '公司名称',
-          date: '2022.01 - 至今',
+          title: '讲师',
+          company: '大学',
+          date: '2022 - 至今',
           description: '在这里描述你的工作职责和主要成就。可以包括项目经验、技术栈、团队协作等内容。\n• 负责核心业务系统的开发与维护\n• 参与技术架构设计和技术选型\n• 带领团队完成重要项目的交付',
-          image: ''
-        },
-        {
-          title: '软件工程师',
-          company: '公司名称',
-          date: '2020.06 - 2021.12',
-          description: '在这里描述你的工作职责和主要成就。',
-          image: ''
+          image: 'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/81FDF7C1F85718B5E62D6595E14988DF.png'
         }
       ],
       
       // 教育背景数据
       education: [
         {
-          degree: '计算机科学 - 学士/硕士/博士',
-          school: '大学名称',
-          date: '2016.09 - 2020.06'
+          degree: '机械 - 学士',
+          school: '河北工业大学',
+          date: '2012.09 - 2016.06',
+          image: 'https://raw.githubusercontent.com/jkhkjlkll/myobs/master/9984492C970BBF14101406A62EE8D1C8.png'
         },
         {
           degree: '相关专业',
@@ -1137,12 +1141,10 @@
         }
       ]
       ,
-      // Utterances / GitHub Issues 配置
-      // 如果你想把留言转到 GitHub Issues，请填写 "用户名/仓库名"，例如: 'jkhkjlkll/jkhkjlkll.github.io'
-      // 当部署到 GitHub Pages 时，站点会自动注入 Utterances 评论框并把留言保存到指定仓库的 Issues。
-      // 如果你希望把“编辑内容”也提交为 Issue（便于合并/审阅），请把 issueRepo 设置为同一仓库或其他仓库。
-      utterancesRepo: 'jkhkjlkll/jkhkjlkll.github.io',
-      issueRepo: 'jkhkjlkll/jkhkjlkll.github.io'
+  // Utterances 配置（将留言保存到 GitHub Issues）
+  // 如果你想把留言转到 GitHub Issues，请填写 "用户名/仓库名"，例如: 'jkhkjlkll/jkhkjlkll.github.io'
+  // 当部署到 GitHub Pages 时，站点会自动注入 Utterances 评论框并把留言保存到指定仓库的 Issues。
+  utterancesRepo: ''
     };
 
     // 数据存储键名
@@ -1211,12 +1213,7 @@
       renderSkills(skillsData);
     }
 
-    // 创建一个新的 GitHub Issue 页面（预填充标题和内容）
-    function openCreateIssue(repo, title, body) {
-      if (!repo) return;
-      const url = `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-      window.open(url, '_blank');
-    }
+    // （已移除）GitHub Issue 自动提交功能被取消，所有保存均回退到 localStorage 或 Utterances 评论。
 
     // 渲染工作经历
     function renderExperience(experienceData) {
@@ -1259,6 +1256,7 @@
             </div>
             <div class="education-date">${escapeHtml(edu.date)}</div>
           </div>
+          ${edu.image ? `<div class="education-image" style="background-image: url('${escapeHtml(edu.image)}')"></div>` : ''}
         </div>
       `).join('');
     }
@@ -1583,22 +1581,11 @@
             email: 'mailto:' + document.getElementById('edit-email').value.trim()
           }
         };
-        const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
-        const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        // 如果配置了 issueRepo 并且是线上访问，打开预填充的 GitHub Issue 页面以便提交（需要登录）
-        if (config.issueRepo && isHttp && !isLocalHost) {
-          const body = `### 编辑：关于我（About）\n\n请在此 Issue 中补充相关说明，提交后可由仓库维护者合并到站点。\n\n**数据（JSON）**:\n\n\`\`\`json\n${JSON.stringify(aboutData, null, 2)}\n\`\`\``;
-          openCreateIssue(config.issueRepo, '站点编辑：About', body);
+          // 保存到 localStorage（本地回退）
+          saveData(STORAGE_KEYS.about, aboutData);
+          initConfig();
           cancelEditSection('about');
-          alert('将在新窗口打开 GitHub Issue 页面以提交更改（请登录并确认提交）。本地模式将继续保存到 localStorage。');
-          return;
-        }
-
-        // 本地回退：保存到 localStorage
-        saveData(STORAGE_KEYS.about, aboutData);
-        initConfig();
-        cancelEditSection('about');
-        alert('保存成功（已写入 localStorage）！');
+          alert('保存成功（已写入 localStorage）！');
       };
 
       // 渲染工作经历编辑表单
@@ -1684,16 +1671,7 @@
           description: item.querySelector('.exp-description').value.trim(),
           image: item.querySelector('.exp-image').value.trim()
         })).filter(exp => exp.title && exp.company);
-        const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
-        const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        if (config.issueRepo && isHttp && !isLocalHost) {
-          const body = `### 编辑：工作经历（Experience）\n\n请在此 Issue 中描述本次修改意图，提交后可由维护者合并。\n\n**数据（JSON）**:\n\n\`\`\`json\n${JSON.stringify(experienceData, null, 2)}\n\`\`\``;
-          openCreateIssue(config.issueRepo, '站点编辑：Experience', body);
-          cancelEditSection('experience');
-          alert('将在新窗口打开 GitHub Issue 页面以提交更改（请登录并确认提交）。本地模式将继续保存到 localStorage。');
-          return;
-        }
-
+        // 保存到 localStorage
         saveData(STORAGE_KEYS.experience, experienceData);
         initConfig();
         cancelEditSection('experience');
@@ -1723,6 +1701,10 @@
               <label>时间</label>
               <input type="text" class="edu-date" value="${escapeHtml(edu.date)}" placeholder="例如：2016.09 - 2020.06">
             </div>
+              <div class="edit-form-group">
+                <label>图片URL（可选）</label>
+                <input type="text" class="edu-image" value="${escapeHtml(edu.image || '')}" placeholder="图片URL">
+              </div>
             <div class="sep"></div>
           </div>
         `).join('');
@@ -1751,6 +1733,10 @@
             <label>时间</label>
             <input type="text" class="edu-date" placeholder="例如：2016.09 - 2020.06">
           </div>
+          <div class="edit-form-group">
+            <label>图片URL（可选）</label>
+            <input type="text" class="edu-image" placeholder="图片URL">
+          </div>
           <div class="sep"></div>
         `;
         container.appendChild(newItem);
@@ -1763,18 +1749,10 @@
         const educationData = Array.from(items).map(item => ({
           degree: item.querySelector('.edu-degree').value.trim(),
           school: item.querySelector('.edu-school').value.trim(),
-          date: item.querySelector('.edu-date').value.trim()
+          date: item.querySelector('.edu-date').value.trim(),
+          image: (item.querySelector('.edu-image') && item.querySelector('.edu-image').value.trim()) || ''
         })).filter(edu => edu.degree && edu.school);
-        const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
-        const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        if (config.issueRepo && isHttp && !isLocalHost) {
-          const body = `### 编辑：教育背景（Education）\n\n**数据（JSON）**:\n\n\`\`\`json\n${JSON.stringify(educationData, null, 2)}\n\`\`\``;
-          openCreateIssue(config.issueRepo, '站点编辑：Education', body);
-          cancelEditSection('education');
-          alert('将在新窗口打开 GitHub Issue 页面以提交更改（请登录并确认提交）。本地模式将继续保存到 localStorage。');
-          return;
-        }
-
+        // 直接保存到 localStorage
         saveData(STORAGE_KEYS.education, educationData);
         initConfig();
         cancelEditSection('education');
@@ -1843,16 +1821,7 @@
             tags: tags
           };
         }).filter(skill => skill.name && skill.tags.length > 0);
-        const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
-        const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        if (config.issueRepo && isHttp && !isLocalHost) {
-          const body = `### 编辑：技能（Skills）\n\n**数据（JSON）**:\n\n\`\`\`json\n${JSON.stringify(skillsData, null, 2)}\n\`\`\``;
-          openCreateIssue(config.issueRepo, '站点编辑：Skills', body);
-          cancelEditSection('skills');
-          alert('将在新窗口打开 GitHub Issue 页面以提交更改（请登录并确认提交）。本地模式将继续保存到 localStorage。');
-          return;
-        }
-
+        // 直接保存到 localStorage
         saveData(STORAGE_KEYS.skills, skillsData);
         initConfig();
         cancelEditSection('skills');
